@@ -58,6 +58,9 @@ Rails.application.configure do
   # Configure the Active Job queue adapter.
   config.active_job.queue_adapter = :solid_queue
 
+  # Connect to SolidQueue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
+
   # Raises error for missing translations.
   # config.i18n.raise_on_missing_translations = true
 
