@@ -3,6 +3,7 @@ require_relative "../config/environment"
 require "rails/test_help"
 require "webmock/minitest"
 require "vcr"
+require "mocha/minitest"
 
 VCR.configure do |c|
   c.cassette_library_dir = File.expand_path("vcr_cassettes", __dir__)

@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   resources :shipments do
     member do
-      post :turbo_stream_update
+      post :create_invoice
     end
   end
 

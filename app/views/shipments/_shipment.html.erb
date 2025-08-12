@@ -7,23 +7,40 @@
       <% case shipment.status %>
       <% when 'pending' %>
         <p class="mt-0.5 rounded-md bg-yellow-50 px-1.5 py-0.5 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
-          <%= shipment.status.capitalize %>
+          Pending
         </p>
-      <% when 'processing' %>
+      <% when 'generating_invoice' %>
+        <p class="mt-0.5 rounded-md bg-purple-50 px-1.5 py-0.5 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-600/20">
+          Generating Invoice
+        </p>
+      <% when 'downloading_packslip' %>
+        <p class="mt-0.5 rounded-md bg-indigo-50 px-1.5 py-0.5 text-xs font-medium text-indigo-700 ring-1 ring-inset ring-indigo-600/20">
+          Downloading Packslip
+        </p>
+      <% when 'awaiting_shipment' %>
         <p class="mt-0.5 rounded-md bg-blue-50 px-1.5 py-0.5 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/20">
-          <%= shipment.status.capitalize %>
+          Awaiting Shipment
         </p>
       <% when 'shipped' %>
         <p class="mt-0.5 rounded-md bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-          <%= shipment.status.capitalize %>
+          Shipped
         </p>
       <% when 'delivered' %>
         <p class="mt-0.5 rounded-md bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-          <%= shipment.status.capitalize %>
+          Delivered
         </p>
       <% when 'cancelled' %>
         <p class="mt-0.5 rounded-md bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
-          <%= shipment.status.capitalize %>
+          Cancelled
+        </p>
+      <% end %>
+      <% if shipment.has_invoice? %>
+        <p class="mt-0.5 rounded-md bg-purple-50 px-1.5 py-0.5 text-xs font-medium text-purple-700 ring-1 ring-inset ring-purple-600/20">
+          <% if shipment.has_invoice_pdf? %>
+            📄 Invoice
+          <% else %>
+            ⏳ Invoice
+          <% end %>
         </p>
       <% end %>
     </div>
@@ -44,7 +61,7 @@
           <circle r="1" cx="1" cy="1" />
         </svg>
         <p class="truncate">
-          <%= pluralize(shipment.shipment_items.size, 'item') %>: 
+          <%= pluralize(shipment.shipment_items.size, 'item') %>:
           <%= shipment.shipment_items.first(2).map { |item| "#{item.name} (#{item.quantity})" }.join(", ") %>
           <%= "..." if shipment.shipment_items.size > 2 %>
         </p>
@@ -52,12 +69,12 @@
     </div>
   </div>
   <div class="flex flex-none items-center gap-x-4">
-    <%= link_to shipment_path(shipment), 
+    <%= link_to shipment_path(shipment),
         class: "hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block" do %>
       View shipment<span class="sr-only">, <%= shipment.description %></span>
     <% end %>
     <div class="relative flex-none" data-controller="dropdown">
-      <button data-action="click->dropdown#toggle" 
+      <button data-action="click->dropdown#toggle"
               class="relative block text-gray-500 hover:text-gray-900">
         <span class="absolute -inset-2.5"></span>
         <span class="sr-only">Open options</span>
@@ -65,11 +82,28 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z" />
         </svg>
       </button>
-      <div data-dropdown-target="menu" 
-           class="hidden absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg outline outline-1 outline-gray-900/5">
-        <%= link_to edit_shipment_path(shipment), 
+      <div data-dropdown-target="menu"
+           class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-2 shadow-lg outline outline-1 outline-gray-900/5">
+        <%= link_to edit_shipment_path(shipment),
             class: "block px-3 py-1 text-sm/6 text-gray-900 hover:bg-gray-50" do %>
           Edit<span class="sr-only">, <%= shipment.description %></span>
+        <% end %>
+        <% unless shipment.has_invoice? %>
+          <%= button_to create_invoice_shipment_path(shipment), method: :post,
+              class: "block w-full text-left px-3 py-1 text-sm/6 text-gray-900 hover:bg-gray-50" do %>
+            Create Invoice<span class="sr-only"> for <%= shipment.description %></span>
+          <% end %>
+        <% else %>
+          <% if shipment.has_invoice_pdf? %>
+            <%= link_to rails_blob_path(shipment.invoice_pdf, disposition: "attachment"),
+                class: "block px-3 py-1 text-sm/6 text-gray-900 hover:bg-gray-50" do %>
+              Download Invoice PDF<span class="sr-only"> for <%= shipment.description %></span>
+            <% end %>
+          <% else %>
+            <div class="px-3 py-1 text-sm/6 text-gray-500">
+              Invoice #<%= shipment.invoice_id %> (PDF pending...)
+            </div>
+          <% end %>
         <% end %>
         <%= button_to shipment_path(shipment), method: :delete,
             data: { turbo_confirm: "Are you sure you want to delete this shipment?" },

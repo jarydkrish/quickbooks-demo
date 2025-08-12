@@ -1,5 +1,5 @@
 class ShipmentsController < ApplicationController
-  before_action :set_shipment, only: %i[show edit update destroy]
+  before_action :set_shipment, only: %i[show edit update destroy create_invoice]
 
   def index
     @shipments = Shipment.includes(:shipment_items).order(created_at: :desc)
@@ -39,6 +39,26 @@ class ShipmentsController < ApplicationController
     @shipment.destroy!
 
     redirect_to shipments_path, notice: "Shipment was successfully destroyed.", status: :see_other
+  end
+
+  def create_invoice
+    if @shipment.has_invoice?
+      redirect_back_or_to @shipment, alert: "Invoice already exists for this shipment."
+      return
+    end
+
+    # Check if QuickBooks is connected
+    unless QuickbooksCredential.first&.access_token.present?
+      redirect_back_or_to @shipment, alert: "QuickBooks not connected. Please connect first."
+      return
+    end
+
+    @shipment.status_generating_invoice!
+
+    # Queue the job to create the invoice
+    QuickbooksCreateInvoiceJob.perform_later(@shipment.id)
+
+    redirect_back_or_to @shipment, notice: "Invoice creation started. PDF will be available shortly."
   end
 
   private

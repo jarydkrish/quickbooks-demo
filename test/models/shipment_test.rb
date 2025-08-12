@@ -36,4 +36,29 @@ class ShipmentTest < ActiveSupport::TestCase
       shipment.destroy
     end
   end
+
+  test "has_invoice? returns true when invoice_id is present" do
+    shipment = Shipment.new(description: "Test", invoice_id: "123")
+    assert shipment.has_invoice?
+  end
+
+  test "has_invoice? returns false when invoice_id is blank" do
+    shipment = Shipment.new(description: "Test")
+    assert_not shipment.has_invoice?
+  end
+
+  test "has_invoice_pdf? returns true when PDF is attached" do
+    shipment = Shipment.create!(description: "Test")
+    shipment.invoice_pdf.attach(
+      io: StringIO.new("fake pdf content"),
+      filename: "test.pdf",
+      content_type: "application/pdf"
+    )
+    assert shipment.has_invoice_pdf?
+  end
+
+  test "has_invoice_pdf? returns false when no PDF is attached" do
+    shipment = Shipment.create!(description: "Test")
+    assert_not shipment.has_invoice_pdf?
+  end
 end
