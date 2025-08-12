@@ -69,10 +69,33 @@
     </div>
   </div>
   <div class="flex flex-none items-center gap-x-4">
-    <%= link_to shipment_path(shipment),
-        class: "hidden rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:block" do %>
-      View shipment<span class="sr-only">, <%= shipment.description %></span>
-    <% end %>
+    <span class="hidden sm:inline-flex isolate rounded-md shadow-sm">
+      <%= link_to shipment_path(shipment),
+          class: "relative inline-flex items-center rounded-l-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10" do %>
+        View<span class="sr-only"> shipment <%= shipment.description %></span>
+      <% end %>
+      <% unless shipment.has_invoice? %>
+        <%= button_to create_invoice_shipment_path(shipment), method: :post,
+            class: "relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10" do %>
+          Create Invoice<span class="sr-only"> for <%= shipment.description %></span>
+        <% end %>
+      <% else %>
+        <% if shipment.has_invoice_pdf? %>
+          <%= link_to rails_blob_path(shipment.invoice_pdf, disposition: "attachment"),
+              class: "relative -ml-px inline-flex items-center rounded-r-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-10" do %>
+            Download PDF<span class="sr-only"> for <%= shipment.description %></span>
+          <% end %>
+        <% else %>
+          <div class="relative -ml-px inline-flex items-center rounded-r-md bg-gray-50 px-3 py-2 text-sm font-medium text-gray-500 ring-1 ring-inset ring-gray-300">
+            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Generating...
+          </div>
+        <% end %>
+      <% end %>
+    </span>
     <div class="relative flex-none" data-controller="dropdown">
       <button data-action="click->dropdown#toggle"
               class="relative block text-gray-500 hover:text-gray-900">
@@ -83,27 +106,10 @@
         </svg>
       </button>
       <div data-dropdown-target="menu"
-           class="hidden absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-2 shadow-lg outline outline-1 outline-gray-900/5">
+           class="hidden absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg outline outline-1 outline-gray-900/5">
         <%= link_to edit_shipment_path(shipment),
             class: "block px-3 py-1 text-sm/6 text-gray-900 hover:bg-gray-50" do %>
           Edit<span class="sr-only">, <%= shipment.description %></span>
-        <% end %>
-        <% unless shipment.has_invoice? %>
-          <%= button_to create_invoice_shipment_path(shipment), method: :post,
-              class: "block w-full text-left px-3 py-1 text-sm/6 text-gray-900 hover:bg-gray-50" do %>
-            Create Invoice<span class="sr-only"> for <%= shipment.description %></span>
-          <% end %>
-        <% else %>
-          <% if shipment.has_invoice_pdf? %>
-            <%= link_to rails_blob_path(shipment.invoice_pdf, disposition: "attachment"),
-                class: "block px-3 py-1 text-sm/6 text-gray-900 hover:bg-gray-50" do %>
-              Download Invoice PDF<span class="sr-only"> for <%= shipment.description %></span>
-            <% end %>
-          <% else %>
-            <div class="px-3 py-1 text-sm/6 text-gray-500">
-              Invoice #<%= shipment.invoice_id %> (PDF pending...)
-            </div>
-          <% end %>
         <% end %>
         <%= button_to shipment_path(shipment), method: :delete,
             data: { turbo_confirm: "Are you sure you want to delete this shipment?" },
