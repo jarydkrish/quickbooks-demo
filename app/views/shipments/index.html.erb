@@ -1,0 +1,27 @@
+<%= turbo_stream_from "shipments" %>
+
+<div class="mx-auto lg:min-w-md max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="lg:text-3xl font-bold text-gray-900">Shipments</h1>
+    <%= link_to "New Shipment", new_shipment_path, class: "bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition" %>
+  </div>
+
+  <ul role="list" id="shipments" class="divide-y divide-gray-100">
+    <% @shipments.each do |shipment| %>
+      <%= render shipment %>
+    <% end %>
+  </ul>
+
+  <% if @shipments.empty? %>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No shipments</h3>
+      <p class="mt-1 text-sm text-gray-500">Get started by creating a new shipment.</p>
+      <div class="mt-6">
+        <%= link_to "New Shipment", new_shipment_path, class: "inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700" %>
+      </div>
+    </div>
+  <% end %>
+</div>

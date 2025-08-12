@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  shipment: one
+  name: Test Widget
+  quantity: 5
+
+two:
+  shipment: two
+  name: Premium Component
+  quantity: 3

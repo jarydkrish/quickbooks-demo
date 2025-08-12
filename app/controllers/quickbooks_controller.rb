@@ -22,8 +22,20 @@ class QuickbooksController < ApplicationController
         quickbooks_credentials.update(
           access_token: resp.token,
           refresh_token: resp.refresh_token,
-          realm_id: params[:realmId]
+          realm_id: params[:realmId],
+          access_token_expires_at: resp.expires_at ? Time.at(resp.expires_at) : 1.hour.from_now,
+          refresh_token_expires_at: resp.params["x_refresh_token_expires_in"] ?
+            Time.now + resp.params["x_refresh_token_expires_in"].to_i.seconds :
+            100.days.from_now
         )
+
+        # Start the token refresh job cycle using dynamic scheduling
+        next_check_at = QuickbooksCredential.next_refresh_check_at
+        wait_time = [ (next_check_at - Time.current), 1.minute ].max
+
+        QuickbooksTokenRefreshJob.set(wait: wait_time).perform_later
+        Rails.logger.info "QuickBooks token refresh job scheduled for #{next_check_at.strftime('%Y-%m-%d %H:%M:%S')}"
+
         # We want to return now, as we are done connecting
         return redirect_to root_path, notice: "QuickBooks account connected successfully."
       end

@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  resources :shipments do
+    member do
+      post :turbo_stream_update
+    end
+  end
+
   get "quickbooks/authenticate"
   get "quickbooks/oauth_callback"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

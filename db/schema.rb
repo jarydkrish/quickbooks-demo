@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_205217) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_11_230814) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
     t.string "record_type", null: false
@@ -49,6 +49,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_205217) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "shipment_items", force: :cascade do |t|
+    t.integer "shipment_id", null: false
+    t.string "name"
+    t.integer "quantity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shipment_id"], name: "index_shipment_items_on_shipment_id"
+  end
+
+  create_table "shipments", force: :cascade do |t|
+    t.text "description"
+    t.string "status"
+    t.datetime "shipped_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "shipment_items", "shipments"
 end
