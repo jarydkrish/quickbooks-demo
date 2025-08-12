@@ -1,0 +1,28 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "7ad448d26cdda18ab782888d19cdb2f983ef592a6baf211c5a8130e48a13cce4",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/quickbooks_controller.rb",
+      "line": 12,
+      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to(QuickbooksCredential.first_or_create!.client.auth_code.authorize_url(:redirect_uri => quickbooks_oauth_callback_url, :response_type => \"code\", :state => QuickbooksCredential.first_or_create!.to_gid_param, :scope => \"com.intuit.quickbooks.accounting\"), :allow_other_host => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "QuickbooksController",
+        "method": "authenticate"
+      },
+      "user_input": "QuickbooksCredential.first_or_create!.client.auth_code.authorize_url(:redirect_uri => quickbooks_oauth_callback_url, :response_type => \"code\", :state => QuickbooksCredential.first_or_create!.to_gid_param, :scope => \"com.intuit.quickbooks.accounting\")",
+      "confidence": "Weak",
+      "cwe_id": [
+        601
+      ],
+      "note": "We redirect over to quickbooks"
+    }
+  ],
+  "brakeman_version": "7.1.0"
+}
